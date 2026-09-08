@@ -1,8 +1,9 @@
 import select
 from typing import List
 
-from sqlmodel import Session
+from sqlmodel import Session, delete
 
+from app.models.label import NoteLabelLink
 from app.models.notas import Notes
 
 
@@ -23,4 +24,23 @@ class NoteRepository:
         self.db.add(note)
         self.commit()
         self.db.refresh(Notes)
-        return Notes
+        return note
+
+    def update(self, note: Notes) -> Notes:
+        self.db.add(note)
+        self.commit()
+        self.db.refresh(Notes)
+        return note
+
+    def delete(self, note: Notes) -> None:
+        self.db.exec(delete(NoteLabelLink).where(
+            NoteLabelLink.note_id == note.id))
+
+    def replace_labels(self, owner_id: int, note_id: int, label_ids: list[int]) -> None:
+        self.db.exec(delete(NoteLabelLink).where(
+            NoteLabelLink.note_id == note_id))
+
+        for label in set(label_ids or []):
+            self.db.add(NoteLabelLink(note_id=note_id, label_id=label))
+
+        self.db.commit()
