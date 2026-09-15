@@ -1,5 +1,5 @@
-from sqlmodel import Session, false, select, delete
-
+from sqlmodel import Session,  select, delete
+from typing import List
 from app.models.share import LabelShare, NoteShare
 
 
@@ -71,3 +71,13 @@ class ShareRepository:
             query = query.where(LabelShare.role == role)
 
         return self.db.exec(query).first() is not None
+
+    def lis_note_ids_shared_directely(self, user_id: int) -> List[int]:
+        return self.db.exec(
+            select(NoteShare.note_id).where(NoteShare.user_id == user_id)
+        ).all()
+
+    def list_label_ids_shared_whit_user(self, user_id: int) -> List[int]:
+        return self.db.exec(
+            select(LabelShare.label_id).where(LabelShare.user_id == user_id)
+        ).scalars().all()

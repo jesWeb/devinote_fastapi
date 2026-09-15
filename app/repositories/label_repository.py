@@ -1,4 +1,5 @@
-
+from cProfile import label
+from typing import List
 from sqlmodel import Session, select, delete
 from app.models.label import NoteLabelLink, Label
 from app.models.share import LabelShare
@@ -39,3 +40,33 @@ class LabelRepository:
         # *eliminar la lebel
         self.db.delete(label)
         self.db.commit()
+
+    """
+    3 tres funciones para devolver a un solo oner y a una etiqueta 
+    """
+
+    def list_ids_for_owner_subset(self, owner_id: int, ids: list[int]) -> List[int]:
+        if not ids:
+            return []
+
+        return self.db.exec(
+            select(Label.id).where(Label.owner_id ==
+                                   owner_id, Label.id.in_(set(ids)))
+        ).all()
+
+# devolver los id de una nota
+    def list_label_ids_for_note(self, note_id: int) -> List[int]:
+        return self.db.exec(
+            select(NoteLabelLink.label_id).where(
+                NoteLabelLink.note_id == note_id)
+        ).scalars().all()
+    # id para devolver cualquier iod  listadas
+
+    def list_note_ids_by_label_ids(self, label_ids: List[int]) -> List[int]:
+        if not label_ids:
+            return []
+        return self.db.exec(
+            select(NoteLabelLink.note_id).where(
+                NoteLabelLink.label_id.in_(label_ids)
+            ).scalars().all()
+        )

@@ -44,3 +44,9 @@ class NoteRepository:
             self.db.add(NoteLabelLink(note_id=note_id, label_id=label))
 
         self.db.commit()
+
+    def list_by_ids(self, ids: list[int]) -> List[Note]:
+        if not ids:
+            return []
+
+        return self.db.exec(select(Note).where(Note.id.in_(ids))).all()
