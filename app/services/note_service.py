@@ -1,9 +1,10 @@
 
 from typing import List
 
+from fastapi import HTTPException
 from sqlmodel import Session
 
-from app.models.notas import Notes
+from app.models.notas import NoteCreate, NoteUpdate, Notes
 from app.models.share import ShareRole
 from app.repositories.label_repository import LabelRepository
 from app.repositories.note_repository import NoteRepository
@@ -57,3 +58,55 @@ class NoteService:
         for note in shared:
             combined.setdefault(note.id, note)
         return sorted(combined.values(), key=lambda note: note.id, reverse=True)
+
+    def create(self, owner_id: int, payload: NoteCreate) -> Notes:
+        note = self.notes.create(
+            Notes(owner_id=owner_id, **
+                  payload.model_dump(exclude={'label_ids'}))
+        )
+
+        if payload.label_ids:
+            self._set_labels(owner_id, note.id, payload.label_ids)
+
+        return note
+
+    def update(self, user_id: int, note_id: int, payload: NoteUpdate) -> Notes:
+
+        note = self.notes.get(note_id)
+
+        if not note:
+            raise HTTPException(status_code=404, detail="Nota no encontrada")
+
+        if not self.user_can_edit(user_id, note):
+            raise HTTPException(status_code=403, detail="No autorizado")
+
+        updates = payload.model_dump(exclude_none=True)
+        label_ids = updates.pop("label_ids", None)
+
+        for key, values in updates.items():
+            setattr(note, key, values)
+        note = self.notes.update(note)
+
+        if label_ids is not None:
+            if note.owner_id != user_id:
+                raise HTTPException(
+                    status_code=404, detail="Noexiste o no autorizado")
+            self._set_labels(user_id, note.id, label_ids)
+        return note
+
+    def delete(self, user_id: int, note_id) -> None:
+        note = self.notes.get(note_id)
+
+        if not note or note.owner_id != user_id:
+            raise HTTPException(
+                status_code=404, detail="No existe la nota o no autorizado")
+
+        self.notes.delete(note)
+
+    # *helpers->asignar lasetiquetas a una nota
+
+    def _set_labels(self, owner_id: int, note_id: int, label_ids: list[int]) -> None:
+        valids_ids = self.labels.list_ids_for_owner_subset(
+            owner_id, label_ids or []
+        )
+        self.notes.replace_labels(owner_id, note_id, valids_ids)
