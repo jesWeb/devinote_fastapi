@@ -3,6 +3,7 @@
 from enum import Enum
 
 from sqlmodel import SQLModel, Field, UniqueConstraint
+import sqlmodel
 
 
 class ShareRole(str, Enum):
@@ -22,7 +23,7 @@ class NoteShare(SQLModel, table=True):
     note_id: int = Field(foreign_key="note.id", index=True)
     user_id: int = Field(foreign_key="user.id", index=True)
     role: ShareRole = Field(default=ShareRole.READ)
-    
+
 
 class LabelShare(SQLModel, table=True):
     __tablename__ = "label_share"
@@ -36,3 +37,8 @@ class LabelShare(SQLModel, table=True):
     label_id: int = Field(foreign_key="label.id", index=True)
     user_id: int = Field(foreign_key="user.id", index=True)
     role: ShareRole = Field(default=ShareRole.READ)
+
+
+class ShareRequest(SQLModel):
+    target_user_id: int = Field(gt=0)
+    role: ShareRole = ShareRole.READ

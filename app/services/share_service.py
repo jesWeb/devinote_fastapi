@@ -25,7 +25,7 @@ class ShareService:
 
         return shared
 
-    def dejar_compatir(self, owner_id: int, note_id: int, target_user_id: int):
+    def dejar_compatir_note(self, owner_id: int, note_id: int, target_user_id: int):
 
         note = self.notes.get(note_id)
 
