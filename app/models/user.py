@@ -18,9 +18,9 @@ class UserCreate(SQLModel):
     password: str
 
 
-class UserRead():
+class UserRead(SQLModel):
     id: int
     email: str
     full_name: str
-    # le dice a pydantic que puede crear el modelo a partir de un objeto con atributos
     model_config = {"from_attributes": True}
+    # le dice a pydantic que puede crear el modelo a partir de un objeto con atributos

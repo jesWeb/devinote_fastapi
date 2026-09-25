@@ -1,10 +1,9 @@
-from sqlalchemy import engine
+from typing import Iterator
 from sqlmodel import Session, create_engine, SQLModel
 from app.core.config import settings
-from typing import Iterator
 
-settings = create_engine(settings.DATABASE_URL, echo=False, connect_args={
-                         "check_same_thread"} if "sqlite" in settings.DATABASE_URL else {})
+engine = create_engine(settings.DATABASE_URL, echo=False, connect_args={
+                       "check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {})
 
 # dev solo
 

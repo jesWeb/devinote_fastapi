@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
-from rich.prompt import password
+from sqlmodel import Session
 
 from app.api.deps import DBSession
 from app.models.user import UserCreate, UserRead
@@ -8,14 +8,11 @@ from app.repositories.user_repository import UserRepository
 from app.services.auth_service import AuthService
 
 
-router = APIRouter(prefix="/auth", tags=['Auth'])
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
-def register(
-    payload: UserCreate,
-    db: DBSession
-):
+def register(payload: UserCreate, db: DBSession):
     service = AuthService(UserRepository(db))
     return service.register(payload)
 
@@ -28,7 +25,7 @@ def login(email: str, password: str, db: DBSession):
 
 
 @router.post("/token")
-def login_token_swag(db: DBSession, form: OAuth2PasswordRequestForm = Depends()):
+def login(db: DBSession, form: OAuth2PasswordRequestForm = Depends()):
     email = form.username
     password = form.password
     service = AuthService(UserRepository(db))

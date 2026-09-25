@@ -17,7 +17,7 @@ class NoteShare(SQLModel, table=True):
         "note_id",
         "user_id",
         name="uq_note_user"
-    ))
+    ),)
 
     id: int = Field(default=None, primary_key=True)
     note_id: int = Field(foreign_key="note.id", index=True)
@@ -31,7 +31,7 @@ class LabelShare(SQLModel, table=True):
         "label_id",
         "user_id",
         name="uq_label_user"
-    ))
+    ),)
 
     id: int = Field(default=None, primary_key=True)
     label_id: int = Field(foreign_key="label.id", index=True)

@@ -1,4 +1,4 @@
-from typing import List
+
 
 from fastapi import HTTPException
 from sqlmodel import Session
@@ -8,14 +8,13 @@ from app.repositories.label_repository import LabelRepository
 
 class LabelService:
 
-    def __init__(self, db: Session) -> None:
+    def __init__(self, db: Session):
         self.repo = LabelRepository(db)
 
-    def list(self, owner_id: int) -> List[Label]:
+    def list(self, owner_id: int) -> list[Label]:
         return self.repo.list_by_users(owner_id)
 
-    def create(self, owner_id: int, payload: CreateLabel) -> Label:
-
+    def create(self, owner_id: int, payload: LabelCreate) -> Label:
         if self.repo.get_by_name(owner_id, payload.name):
             raise HTTPException(
                 status_code=400, detail="La etiqueta ya existe")
@@ -28,4 +27,4 @@ class LabelService:
             raise HTTPException(
                 status_code=404, detail="La etiqueta no existe o no autorizado")
 
-        return self.repo.delete(label)
+        self.repo.delete(label)

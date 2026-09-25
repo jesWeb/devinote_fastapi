@@ -26,4 +26,5 @@ def update_note(note_id: int, payload: NoteUpdate, db: DBSession, user: CurrentU
 @router.delete("/{note_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_note(note_id: int, db: DBSession, user: CurrentUser):
     NoteService(db).delete(user.id, note_id)
+
     return None

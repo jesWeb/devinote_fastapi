@@ -1,7 +1,7 @@
+from datetime import datetime, timedelta, timezone
 from pwdlib import PasswordHash
-from datetime import datetime, timedelta
-from app.core.config import settings
 import jwt
+from app.core.config import settings
 
 pwd_context = PasswordHash.recommended()
 
@@ -23,18 +23,13 @@ def verify_password(plain: str, hashed: str) -> bool:
 def create_access_token(data: dict, minutes: int | None = None) -> str:
 
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=minutes or settings.JWT_EXPIRES_MIN)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=minutes or settings.JWT_EXPIRES_MIN)
     to_encode.update({"exp": expire})
 
-    jwt_codificacion = jwt.encode(
-        to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALG)
-
-    return jwt_codificacion
+    return jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALG)
 
 # decodificar el token
 
 
 def decode_token(token: str) -> dict:
-    jwt_decode = jwt.decode(token, settings.JWT_SECRET,
-                            algorithms=[settings.JWT_ALG])
-    return jwt_decode
+    return jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALG])
