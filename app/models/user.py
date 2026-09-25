@@ -9,6 +9,7 @@ class User(SQLModel, table=True):
     email: str = Field(index=True, unique=True)
     full_name: str = Field(default='')
     hashed_password: str
+    active: bool = Field(default=True)
 
 
 # * crear clases ose a como pydantic -> esta la convietre automaticamente en la validaciond e pydentic implicitamente es
